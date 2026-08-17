@@ -1,0 +1,235 @@
+<?php
+$pageTitle = "تلگرام | برنامه چت آنلاین";
+require_once 'includes/header.php';
+?>
+
+<!-- Auth Screen -->
+<div id="auth-screen" class="screen">
+    <div class="auth-card">
+        <h2 id="auth-title">ورود به حساب</h2>
+        <br>
+        <div id="login-form">
+            <input type="text" id="login-username" placeholder="نام کاربری">
+            <input type="password" id="login-password" placeholder="رمز عبور">
+            <button onclick="login()">ورود</button>
+            <br><br>
+            <p style="font-size: 12px;"><a href="#" style="color:#6ab0ff;" onclick="switchToRegister()">ثبت نام جدید</a></p>
+        </div>
+        <div id="step-1" class="hidden">
+            <p style="font-size:12px; color:#ffb84d; background:rgba(255,184,77,0.1); border:1px solid #ffb84d; border-radius:6px; padding:8px; margin-bottom:10px; line-height:1.8;">
+                ⚠️ لطفاً قبل از ثبت‌نام، فیلترشکن (VPN) خود را روشن کنید و تا پایان ثبت‌نام خاموش نکنید.
+            </p>
+            <input type="text" id="reg-username" placeholder="نام کاربری جدید">
+            <input type="password" id="reg-password" placeholder="رمز عبور جدید">
+            <button onclick="nextStep()">ادامه</button>
+            <br><br>
+            <p style="font-size: 12px;">حساب دارید؟ <a href="#" style="color:#6ab0ff;" onclick="switchToLogin()">ورود</a></p>
+        </div>
+        <div id="step-2" class="hidden">
+            <input type="text" id="reg-name" placeholder="نام">
+            <input type="text" id="reg-family" placeholder="نام خانوادگی">
+            <input type="text" id="reg-userid" placeholder="آیدی اختصاصی (بدون @)">
+            <button onclick="completeRegister()">تکمیل ثبت نام</button>
+        </div>
+    </div>
+</div>
+
+<!-- Main Screen -->
+<div id="main-screen" class="screen hidden">
+    <div class="header">
+        <div class="header-title">
+            <h3>تلگرام</h3>
+        </div>
+    </div>
+
+    <div class="search-box">
+        <input type="text" id="search-input" placeholder="جستجوی آیدی (بدون @)...">
+        <button onclick="searchUser()"><i class="fa fa-search"></i></button>
+    </div>
+
+    <div class="tabs">
+        <div class="tab-btn active" onclick="switchTab('all', this)">همه</div>
+        <div class="tab-btn" onclick="switchTab('direct', this)">پیوی‌ها</div>
+        <div class="tab-btn" onclick="switchTab('group', this)">گروه‌ها</div>
+        <div class="tab-btn" onclick="switchTab('channel', this)">کانال‌ها</div>
+    </div>
+
+    <div class="chat-list" id="chat-list-container"></div>
+
+    <div class="bottom-nav">
+        <div class="bottom-nav-item active" data-nav="chats" onclick="switchMainSection('chats')">
+            <i class="fa fa-comment-dots"></i>
+            <span>گفتگوها</span>
+        </div>
+        <div class="bottom-nav-item" data-nav="settings" onclick="switchMainSection('settings')">
+            <i class="fa fa-cog"></i>
+            <span>تنظیمات</span>
+        </div>
+        <div class="bottom-nav-item" data-nav="profile" onclick="switchMainSection('profile')">
+            <i class="fa fa-user"></i>
+            <span>پروفایل</span>
+        </div>
+    </div>
+</div>
+
+<!-- Settings Screen -->
+<div id="settings-screen" class="screen hidden">
+    <div class="header">
+        <div class="header-title">
+            <button class="btn-back" onclick="switchMainSection('chats')"><i class="fa fa-arrow-right"></i></button>
+            <h3>تنظیمات</h3>
+        </div>
+    </div>
+
+    <div class="settings-container">
+        <button id="btn-admin-panel" class="btn-admin-menu hidden" onclick="openAdminPanel()">
+            <i class="fa fa-user-shield"></i> ورود به پنل مدیریت
+        </button>
+
+        <div class="settings-group">
+            <h4><i class="fa fa-user-lock"></i> اطلاعات حساب و حریم خصوصی</h4>
+            <label>نام</label>
+            <input type="text" id="setting-name">
+            <label>نام خانوادگی</label>
+            <input type="text" id="setting-family">
+            <label>آیدی اختصاصی (بدون @)</label>
+            <input type="text" id="setting-userid">
+            <label>نام کاربری ورود (Username)</label>
+            <input type="text" id="setting-username">
+            <label>رمز عبور (Password)</label>
+            <input type="password" id="setting-password">
+            <button class="btn-save-settings" onclick="saveSettings()">ذخیره تغییرات</button>
+        </div>
+    </div>
+
+    <div class="bottom-nav">
+        <div class="bottom-nav-item" data-nav="chats" onclick="switchMainSection('chats')">
+            <i class="fa fa-comment-dots"></i>
+            <span>گفتگوها</span>
+        </div>
+        <div class="bottom-nav-item active" data-nav="settings" onclick="switchMainSection('settings')">
+            <i class="fa fa-cog"></i>
+            <span>تنظیمات</span>
+        </div>
+        <div class="bottom-nav-item" data-nav="profile" onclick="switchMainSection('profile')">
+            <i class="fa fa-user"></i>
+            <span>پروفایل</span>
+        </div>
+    </div>
+</div>
+
+<!-- Profile Screen -->
+<div id="profile-screen" class="screen hidden">
+    <div class="header">
+        <div class="header-title">
+            <button class="btn-back" onclick="switchMainSection('chats')"><i class="fa fa-arrow-right"></i></button>
+            <h3>پروفایل</h3>
+        </div>
+    </div>
+
+    <div class="settings-container">
+        <div class="profile-card">
+            <div class="profile-avatar-wrapper" onclick="document.getElementById('user-avatar-file-input').click()">
+                <div id="settings-avatar-box">
+                    <div class="profile-avatar" id="settings-avatar-icon">؟</div>
+                </div>
+                <div class="avatar-edit-overlay"><i class="fa fa-camera"></i></div>
+            </div>
+            <input type="file" id="user-avatar-file-input" accept="image/*" class="hidden" onchange="uploadUserAvatar(event)">
+
+            <div class="profile-info">
+                <h3 id="settings-profile-fullname">نام و خانوادگی</h3>
+                <p id="settings-profile-id">@username</p>
+            </div>
+        </div>
+
+        <button class="btn-logout" style="width:100%; justify-content:center; padding:11px;" onclick="logout()"><i class="fa fa-sign-out-alt"></i> خروج از حساب</button>
+    </div>
+
+    <div class="bottom-nav">
+        <div class="bottom-nav-item" data-nav="chats" onclick="switchMainSection('chats')">
+            <i class="fa fa-comment-dots"></i>
+            <span>گفتگوها</span>
+        </div>
+        <div class="bottom-nav-item" data-nav="settings" onclick="switchMainSection('settings')">
+            <i class="fa fa-cog"></i>
+            <span>تنظیمات</span>
+        </div>
+        <div class="bottom-nav-item active" data-nav="profile" onclick="switchMainSection('profile')">
+            <i class="fa fa-user"></i>
+            <span>پروفایل</span>
+        </div>
+    </div>
+</div>
+
+<!-- Admin Panel Screen -->
+<div id="admin-panel-screen" class="screen hidden">
+    <div class="header">
+        <div class="header-title">
+            <button class="btn-back" onclick="closeAdminPanel()"><i class="fa fa-arrow-right"></i></button>
+            <h3>پنل مدیریت سیستم</h3>
+        </div>
+    </div>
+
+    <div class="settings-container">
+        <div class="stat-box">
+            <span style="font-size: 13px; color: #7f91a4;">تعداد کل اکانت‌های ساخته شده</span>
+            <h2 id="total-users-count">0</h2>
+        </div>
+
+        <div class="settings-group">
+            <h4>لیست اکانت‌های فعال سیستم</h4>
+            <div id="admin-user-list"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Chat Screen -->
+<div id="chat-screen" class="screen hidden">
+    <div class="header">
+        <div class="header-title" style="overflow: hidden;">
+            <button class="btn-back" onclick="closeChat()"><i class="fa fa-arrow-right"></i></button>
+            <div id="chat-header-avatar"></div>
+            <div id="chat-header-info" style="display:flex; flex-direction:column; overflow:hidden; flex:1; cursor:pointer;" onclick="copyCurrentChatId()">
+                <h3 id="current-chat-title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size:15px; margin:0; line-height:1.3;">نام گفتگو</h3>
+                <span id="current-chat-subtitle" style="font-size:11px; color:#7f91a4; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"></span>
+            </div>
+        </div>
+        <div class="header-actions">
+            <button class="btn-more-options" onclick="openChatOptionsMenu()"><i class="fa fa-ellipsis-v"></i></button>
+        </div>
+    </div>
+
+    <div class="messages-container" id="messages-container"></div>
+
+    <div class="chat-bottom-wrapper">
+        <div id="reply-preview" class="reply-preview hidden">
+            <span id="reply-text"></span>
+            <i class="fa fa-times" style="cursor:pointer;" onclick="cancelReply()"></i>
+        </div>
+
+        <div id="img-preview-bar" class="img-preview-bar hidden">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <img id="img-preview-thumb" src="" alt="preview">
+                <span style="font-size:12px; color:#6ab0ff;">تصویر انتخاب شد</span>
+            </div>
+            <i class="fa fa-times" style="cursor:pointer; color:#e53935;" onclick="removePendingImage()"></i>
+        </div>
+
+        <div class="chat-input-area" id="input-area">
+            <button type="button" class="btn-attach-img" onclick="document.getElementById('chat-img-file-input').click()"><i class="fa fa-image"></i></button>
+            <input type="file" id="chat-img-file-input" accept="image/*" class="hidden" onchange="handleChatImageSelect(event)">
+            <input type="file" id="group-avatar-file-input" accept="image/*" class="hidden" onchange="uploadGroupOrChannelAvatar(event)">
+
+            <input type="text" id="message-input" placeholder="نوشتن پیام...">
+            <button onclick="sendMessage()"><i class="fa fa-paper-plane"></i></button>
+        </div>
+
+        <div id="locked-notice" class="chat-locked-notice hidden"></div>
+    </div>
+</div>
+
+<?php
+require_once 'includes/modals.php';
+require_once 'includes/footer.php';
+?>
